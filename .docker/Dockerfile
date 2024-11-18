@@ -90,6 +90,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends\
     ros-$ROS_DISTRO-moveit-visual-tools \
     ros-$ROS_DISTRO-clearpath-simulator \
     ros-$ROS_DISTRO-clearpath-desktop \
+    ros-$ROS_DISTRO-clearpath-nav2-demos \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 
