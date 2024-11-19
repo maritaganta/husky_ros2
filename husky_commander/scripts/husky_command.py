@@ -3,11 +3,11 @@
 import time
 from copy import deepcopy
 
-from geometry.msgs import PoseStamped
+from geometry_msgs.msg import PoseStamped
 from rclpy.duration import Duration
 import rclpy
 
-from nav2_simple_commander import BasicNavigator, TaskResult
+from nav2_simple_commander.robot_navigator import BasicNavigator, TaskResult
 
 start = {
     "point_a":[-3.829, -7.604],
@@ -77,12 +77,12 @@ def main():
         final_pose.pose.orientation.w = 0.0
         navigator.goToPose(final_pose)
 
-    elif result = TaskResult.CANCELED:
+    elif result == TaskResult.CANCELED:
         print('canceled')
         initial_pose.header.stamp = navigator.get_clock().now().to_msg()
         navigator.goToPose(initial_pose)
 
-    elif result = TaskResult.FAILED:
+    elif result == TaskResult.FAILED:
         print('failed')
         exit(-1)
 
@@ -91,6 +91,6 @@ def main():
 
     exit(0)
 
-    if __name__ = '__main__':
-        mai()
+if __name__ == '__main__':
+    main()
 
