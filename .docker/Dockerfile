@@ -1,5 +1,5 @@
 ARG ROS_DISTRO=humble
-FROM ros:${ROS_DISTRO}-ros-base as base
+FROM ros:${ROS_DISTRO}-ros-base AS base
 
 ARG ROS_DISTRO
 
@@ -48,17 +48,9 @@ RUN pip3 install --no-cache-dir --upgrade pip\
     pylint \
     numpy \
     opencv-python \
-    pydantic==1.10.14 \
     panda \
     matplotlib \
     rosbags     
-
-
-# RUN wget https://packages.clearpathrobotics.com/public.key -O - | apt-key add - \
-#     && echo "deb https://packages.clearpathrobotics.com/stable/ubuntu $(lsb_release -cs) main" > /etc/apt/sources.list.d/clearpath-latest.list
-
-# RUN curl https://packages.osrfoundation.org/gazebo.gpg --output /usr/share/keyrings/pkgs-osrf-archive-keyring.gpg \
-#     echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/pkgs-osrf-archive-keyring.gpg] http://packages.osrfoundation.org/gazebo/ubuntu-stable $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/gazebo-stable.list > /dev/null
 
 RUN sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable `lsb_release -cs` main" > /etc/apt/sources.list.d/gazebo-stable.list' \
     && wget http://packages.osrfoundation.org/gazebo.key -O - | apt-key add - \
@@ -83,30 +75,29 @@ RUN apt-get update && apt-get install -y --no-install-recommends\
     ros-$ROS_DISTRO-ros-testing \
     ros-$ROS_DISTRO-ros2bag \
     ros-$ROS_DISTRO-ign-ros2-control \
+    ros-$ROS_DISTRO-moveit \
     ros-$ROS_DISTRO-moveit-servo \
+    ros-$ROS_DISTRO-moveit-visual-tools \
+    ros-$ROS_DISTRO-pilz-industrial-motion-planner \
     ros-$ROS_DISTRO-ros-ign-bridge \
     ros-$ROS_DISTRO-ros-ign-gazebo \
     ros-$ROS_DISTRO-ament-clang-format \
     ros-$ROS_DISTRO-moveit-visual-tools \
-    ros-$ROS_DISTRO-clearpath-simulator \
     ros-$ROS_DISTRO-clearpath-desktop \
-    ros-$ROS_DISTRO-clearpath-nav2-demos \
+    ros-$ROS_DISTRO-clearpath-simulator \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 
 RUN mkdir -p /dev_ws/src
 
-# WORKDIR /dev_ws/src
+WORKDIR /dev_ws/src
 
-# RUN git clone https://github.com/moveit/moveit2.git -b main \
-#     && for repo in moveit2/moveit2.repos $(f="moveit2/moveit2_$ROS_DISTRO.repos"; test -r $f && echo $f); do vcs import < "$repo"; done
-
+# RUN git clone -b humble https://github.com/clearpathrobotics/clearpath_simulator.git \
+RUN git clone -b humble https://github.com/clearpathrobotics/clearpath_common.git \
+    && git clone -b humble https://github.com/clearpathrobotics/clearpath_config.git \
+    && git clone -b humble https://github.com/clearpathrobotics/clearpath_msgs.git
 
 WORKDIR /dev_ws
-
-RUN wget https://raw.githubusercontent.com/clearpathrobotics/clearpath_simulator/main/dependencies.repos \
-    && vcs import src < dependencies.repos
-
 
 COPY . /dev_ws/src
 
