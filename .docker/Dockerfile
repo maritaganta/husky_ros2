@@ -6,7 +6,7 @@ ARG ROS_DISTRO
 ENV LANG=C.UTF-8
 ENV LC_ALL=C.UTF-8
 ENV DEBIAN_FRONTEND=noninteractive
-ENV TERM xterm-256color
+ENV TERM=xterm-256color
 
 
 RUN apt-get update && apt-get install -y --no-install-recommends\
@@ -67,9 +67,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends\
     ros-$ROS_DISTRO-compressed-image-transport \
     ros-$ROS_DISTRO-clearpath-desktop \
     ros-$ROS_DISTRO-cv-bridge \
+    ros-$ROS_DISTRO-ros2-control \
+    ros-$ROS_DISTRO-ros2-controllers \
+    ros-$ROS_DISTRO-kinematics-interface \
+    ros-$ROS_DISTRO-control-msgs \
+    ros-$ROS_DISTRO-realtime-tools \
     ros-$ROS_DISTRO-rosbag2-py \
     ros-$ROS_DISTRO-usb-cam \
     ros-$ROS_DISTRO-ur \
+    ros-$ROS_DISTRO-ur-msgs \
+    ros-$ROS_DISTRO-ur-client-library \
     ros-$ROS_DISTRO-rviz2 \
     ros-$ROS_DISTRO-rmw-cyclonedds-cpp \
     ros-$ROS_DISTRO-ros-testing \
@@ -85,6 +92,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends\
     ros-$ROS_DISTRO-moveit-visual-tools \
     ros-$ROS_DISTRO-clearpath-desktop \
     ros-$ROS_DISTRO-clearpath-simulator \
+    ros-$ROS_DISTRO-clearpath-nav2-demos \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 
@@ -92,17 +100,21 @@ RUN mkdir -p /dev_ws/src
 
 WORKDIR /dev_ws/src
 
-# RUN git clone -b humble https://github.com/clearpathrobotics/clearpath_simulator.git \
 RUN git clone -b humble https://github.com/clearpathrobotics/clearpath_common.git \
     && git clone -b humble https://github.com/clearpathrobotics/clearpath_config.git \
-    && git clone -b humble https://github.com/clearpathrobotics/clearpath_msgs.git
+    && git clone -b humble https://github.com/clearpathrobotics/clearpath_msgs.git 
+    
+RUN wget https://packages.clearpathrobotics.com/public.key -O - | sudo apt-key add - \
+    && sudo sh -c 'echo "deb https://packages.clearpathrobotics.com/stable/ubuntu $(lsb_release -cs) main" > /etc/apt/sources.list.d/clearpath-latest.list' \
+    && sudo apt-get update && sudo apt-get install -y ros-$ROS_DISTRO-clearpath-sensors \
+    && sudo apt-get clean && sudo rm -rf /var/lib/apt/lists/*
 
 WORKDIR /dev_ws
 
 COPY . /dev_ws/src
 
-RUN apt-get update && rosdep install --ignore-src --from-paths src -y\
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+# RUN apt-get update && rosdep install --ignore-src --from-paths src -y\
+#     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 RUN ["/bin/bash", "-c", "source /opt/ros/$ROS_DISTRO/setup.bash && \
      colcon build --merge-install --symlink-install --cmake-args '-DCMAKE_BUILD_TYPE=Release'"]
